@@ -2,6 +2,10 @@
   "name": "gf-affection-lights-backend",
   "module": "index.ts",
   "type": "module",
+  "scripts": {
+    "start": "bun run --hot index.ts",
+    "startprod": "bun run index.ts"
+  },
   "devDependencies": {
     "bun-types": "latest"
   },

@@ -1,8 +1,9 @@
 import { Database } from "bun:sqlite";
 
-console.info(`serving at http://localhost:${Bun.env.BUN_PORT}`)
+console.info(`serving at http://localhost:3006`)
 
 Bun.serve({
+    port: 3006,
     fetch(req) {
         const reqUrl = new URL(req.url);
         if (reqUrl.pathname === "/send-affection-sms") {
@@ -17,7 +18,13 @@ Bun.serve({
                 // when a record is found, then return error to wait 2 minutes
                 if (checkRes.length > 0 && checkRes.at(-1).lastAccess) {
                     db.close();
-                    return new Response("Please wait 2 minutes", { status: 418 });
+                    return new Response(null, {
+                        status: 409,
+                        headers: {
+                            'Access-Control-Allow-Origin': '*',
+                            'Content-Type': 'application/json'
+                        }
+                    });
                 } else {
                     // when no record is found then save current date to db and trigger sms API
                     db.query(`
@@ -27,7 +34,7 @@ Bun.serve({
 
                     const url = new URL("https://platform.clickatell.com/messages/http/send");
                     url.searchParams.append("apiKey", Bun.env.CLICKATELL_API_KEY?.toString());
-                    url.searchParams.append("to", Bun.env.SMS_RECEIPIENT?.toString());
+                    url.searchParams.append("to", Bun.env.SMS_RECIPIENT?.toString());
                     url.searchParams.append("content", message);
                     return fetch(url);
                 }
